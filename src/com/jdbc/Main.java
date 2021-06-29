@@ -13,28 +13,28 @@ import java.time.format.DateTimeFormatter;
 public class Main {
 
     public static void main( String args[] ) {
-        Connection c = null;
-        Statement stmt = null;
+        Connection c = null; // соединение
+        Statement stmt = null; // поток работы с БД
 
         try {
-            Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:test.db");
-            c.setAutoCommit(false);
+            Class.forName("org.sqlite.JDBC");  // формат работы бд
+            c = DriverManager.getConnection("jdbc:sqlite:test.db"); // сама бд, подключение к файлу
+            c.setAutoCommit(false);  // отключение авто сохронения
             System.out.println("Открытие бд, успех!");
 
             try {
-                stmt = c.createStatement();
+                stmt = c.createStatement(); // бд в поток
                 String sql = "CREATE TABLE Book " +
                         "(id INT NOT NULL," +
                         " NAME CHAR(50) NOT NULL, " +
                         " dt DATE," +
-                        " PRIMARY KEY (id))";
+                        " PRIMARY KEY (id))"; // создание таблицы в sql
                 stmt.execute("drop table IF EXISTS Book");
-                stmt.executeUpdate(sql);
+                stmt.executeUpdate(sql); // обновить бд
                 //c.commit();
             }catch (Exception e){};
 
-            String myDate = "2014/10/29 18:10:45";
+            String myDate = "2014/10/29 18:10:45"; // создание времени
             LocalDateTime localDateTime = LocalDateTime.parse(myDate,
                     DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss") );
 
@@ -53,20 +53,20 @@ public class Main {
             preparedStatement = c.prepareStatement("insert into Book (id, name, dt) values (1, 'tom', '2017-02-12')");
             preparedStatement.execute();
 
-            preparedStatement= c.prepareStatement("SELECT * FROM Book");
-            ResultSet rs = preparedStatement.executeQuery();
+            preparedStatement= c.prepareStatement("SELECT * FROM Book");  // фильтация входных данных в sql
+            ResultSet rs = preparedStatement.executeQuery();// выборка по запросу sql
 
-            while ( rs.next() ) {
+            while ( rs.next() ) { // пока не закончилась, доставать данные и выводить на экран
                 Blob blob1 = rs.getBlob("img");
                 BufferedImage image1 = ImageIO.read(blob1.getBinaryStream());
                 File outFile = new File("save.jpg");
                 ImageIO.write(image1, "jpg", outFile);
             }
-            rs.close();
+            rs.close(); // закрытие
             stmt.close();
             c.close();
         } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() ); 
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() ); // ошибка
             System.exit(0);
         }
         System.out.println("Выборка данных, успех!");
